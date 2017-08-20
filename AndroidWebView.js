@@ -10,23 +10,56 @@
  */
 'use strict';
 
-var ActivityIndicator = require('ActivityIndicator');
-var React = require('React');
-var ReactNative = require('ReactNative');
-var StyleSheet = require('StyleSheet');
-var UIManager = require('UIManager');
-var View = require('View');
+import React, {
+  Component,
+  PropTypes,
+} from 'react';
 
-const ViewPropTypes = require('ViewPropTypes');
+import ReactNative, {
+  EdgeInsetsPropType,
+  ActivityIndicator,
+  StyleSheet,
+  UIManager,
+  View,
+  requireNativeComponent,
+} from 'react-native';
 
-var deprecatedPropType = require('deprecatedPropType');
-var keyMirror = require('fbjs/lib/keyMirror');
-var requireNativeComponent = require('requireNativeComponent');
-var resolveAssetSource = require('resolveAssetSource');
+const ViewPropTypes = View.propTypes;
 
-var PropTypes = React.PropTypes;
+import warning from 'warning';
+import keyMirror from 'keymirror';
+import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
 
-var RCT_WEBVIEW_REF = 'webview';
+/**
+ * Adds a function for warning Users of deprecated prop use (when something was
+ * valid in previous versions of a component, but not any more).
+ *
+ * In a fit of hilarious irony, the built in React deprecatedPropType used for
+ *  warning users about deprecated PropTypes, has itself been deprecated, and
+ *  this fact is terribly documented (or at least the SEO is subpar), with most
+ *  of the "documentation" found through google being users being caught out by
+ *  this change.
+ *  https://facebook.github.io/react/warnings/dont-call-proptypes.html sort of
+ *  contains a replacement, but not fully documented (e.g. no declaration of
+ *  the 'warned' const). Finding the fix for this was a great experience
+ *  all round, would recommend.
+ */
+const warned = {};
+export default function deprecatedPropType(propType, explanation) {
+  return function validate(props, propName, componentName, ...rest) { // Note ...rest here
+    if (props[propName] != null) {
+      const message = `"${propName}" property of "${componentName}" has been deprecated.\n${explanation}`;
+      if (!warned[message]) {
+        warning(false, message);
+        warned[message] = true;
+      }
+    }
+
+    return propType(props, propName, componentName, ...rest); // and here
+  };
+}
+
+var RCT_WEBVIEW_REF = 'AndroidWebView';
 
 var WebViewState = keyMirror({
   IDLE: null,
@@ -45,7 +78,7 @@ var defaultRenderLoading = () => (
 /**
  * Renders a native WebView.
  */
-class WebView extends React.Component {
+class WebView extends Component {
   static propTypes = {
     ...ViewPropTypes,
     renderError: PropTypes.func,
@@ -55,6 +88,7 @@ class WebView extends React.Component {
     onLoadStart: PropTypes.func,
     onError: PropTypes.func,
     automaticallyAdjustContentInsets: PropTypes.bool,
+    contentInset: EdgeInsetsPropType,
     onNavigationStateChange: PropTypes.func,
     onMessage: PropTypes.func,
     onContentSizeChange: PropTypes.func,
