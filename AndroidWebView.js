@@ -78,7 +78,7 @@ var defaultRenderLoading = () => (
 /**
  * Renders a native WebView.
  */
-class WebView extends Component {
+class AndroidWebView extends Component {
   static propTypes = {
     ...ViewPropTypes,
     renderError: PropTypes.func,
@@ -222,6 +222,8 @@ class WebView extends Component {
      * @platform android
      */
     saveFormDataDisabled: PropTypes.bool,
+    
+    uploadEnabledAndroid: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -278,9 +280,9 @@ class WebView extends Component {
     }
 
     var webView =
-      <RCTWebView
-        ref={RCT_WEBVIEW_REF}
-        key="webViewKey"
+      <WebViewForAndroid
+        ref={(c) => { this[RCT_WEBVIEW_REF] = c; }}
+        key="androidwebViewKey"
         style={webViewStyles}
         source={resolveAssetSource(source)}
         scalesPageToFit={this.props.scalesPageToFit}
@@ -301,6 +303,7 @@ class WebView extends Component {
         allowUniversalAccessFromFileURLs={this.props.allowUniversalAccessFromFileURLs}
         mixedContentMode={this.props.mixedContentMode}
         saveFormDataDisabled={this.props.saveFormDataDisabled}
+        uploadEnabledAndroid={true}
       />;
 
     return (
@@ -414,7 +417,7 @@ class WebView extends Component {
   }
 }
 
-var RCTWebView = requireNativeComponent('RCTWebView', WebView, {
+const WebViewForAndroid = requireNativeComponent('AndroidWebView', AndroidWebView, {
   nativeOnly: {
     messagingEnabled: PropTypes.bool,
   },
@@ -438,4 +441,4 @@ var styles = StyleSheet.create({
   },
 });
 
-module.exports = WebView;
+module.exports = AndroidWebView;
