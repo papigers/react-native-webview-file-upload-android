@@ -224,12 +224,21 @@ class AndroidWebView extends Component {
     saveFormDataDisabled: PropTypes.bool,
     
     uploadEnabledAndroid: PropTypes.bool,
+    
+    /**
+     * Used on Android Lollipop and above only, third party cookies are enabled
+     * by default for WebView on Android Kitkat and below and on iOS
+     * @platform android
+     */
+    thirdPartyCookiesEnabled: PropTypes.bool,
   };
 
   static defaultProps = {
     javaScriptEnabled : true,
     scalesPageToFit: true,
-    saveFormDataDisabled: false
+    saveFormDataDisabled: false,
+    uploadEnabledAndroid: true,
+    thirdPartyCookiesEnabled: true
   };
 
   state = {
